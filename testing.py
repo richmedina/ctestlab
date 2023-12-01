@@ -1,26 +1,35 @@
 import spacy
 from spacy.tokens import Token
+from spacy.lang.ar import Arabic
 
 
 Token.set_extension("gap", default="")
 
 
 def arb_gap(token):
-    pass
+    tlen = len(token.text)
+    if tlen < 2 or token.pos_ == 'PROPN':
+        return 0  #skip this token
+    return (tlen//2) + (tlen%2)
 
 def chn_gap(token):
-    pass
+    tlen = len(token.text)
+    if tlen < 2 or token.pos_ == 'PROPN':
+        return 0  #skip this token
+    return (tlen//2) + (tlen%2)
 
 def eng_gap(token):
     tlen = len(token.text)
+    if  tlen < 2 or token.pos_ == 'PROPN':
+        return 0  #skip this token
     return (tlen//2) + (tlen%2)
 
 def kor_gap(token):
     """ gaping is based on finding suffixes in each word then determining the 
         breakpoint based on ignoring the suffix portion."""
     tlen = len(token.text)
-    if tlen < 2:
-        return 0
+    if tlen < 2 or token.pos_ == 'PROPN':
+        return 0  #skip this token
     # Get lexical info
     t = token.tag_
     p = token.pos_
@@ -37,7 +46,7 @@ def kor_gap(token):
 
 def por_gap(token):
     tlen = len(token.text)
-    if tlen < 3:
+    if tlen < 3 or token.pos_ == 'PROPN':
         return 0
     return (tlen//2) + (tlen%2)
 
@@ -45,7 +54,10 @@ def per_gap(token):
     pass
 
 def rus_gap(token):
-    pass
+    tlen = len(token.text)
+    if token.pos_ == 'PROPN':
+        return 0  #skip this token
+    return (tlen//2) + (tlen%2)
 
 def get_start_index(doc):
     st = [i for i in doc.sents][1]
@@ -61,7 +73,7 @@ def strip_puncuation(doc):
 def doc_data_dump(doc):
     print(f'{"I":{3}} {"TOKEN":{4}} {"LEMMA":{4}} {"TAG":{4}} {"POS":{4}}')
     for token in doc:
-        print(f'{token.i:{3}} {token.text:{4}} {token.lemma_:{4}} {token.tag_:{4}} {token.pos_:{4}}')
+        print(f'{token.i:{3}} {token.text:{4}} {token.lemma_:{4}} {token.tag_:{4}} {token.pos_:{4}} {len(token.text):{4}}')
 
 def doc_print_ctest(doc):
     s = ''
@@ -98,7 +110,17 @@ if __name__ == '__main__':
 
     # nlp = spacy.load("pt_core_news_lg")
     # doc = nlp("Esforços significativos estão sendo direcionados para a melhoria dos benefícios de seguros de saúde no país. Recentemente, o governo anunciou novas políticas com o objetivo de proporcionar benefícios de seguro de saúde mais abrangentes e acessíveis para os cidadãos. Essa mudança visa garantir que mais pessoas tenham acesso a serviços de saúde estáveis e eficazes.")
+
+    # nlp = spacy.blank('ar')
+    # nlp.add_pipe('sentencizer')
+    # doc = nlp("وفي البلدان الناطقة باللغة العربية، تتألق كرة القدم بمكانة خاصة وشعبية لا مثيل لها. تعتبر هذه اللعبة الرياضية لغة مشتركة تربط بين الناس، بغض النظر عن ثقافاتهم. يعكس هذا الاهتمام الواسع جدًا بالرياضات الشعبية قدرة الكرة الطائرة على تجاوز الحدود وتوحيد المجتمعات. ويشهد المشهد الرياضي في هذه الدول حماسا مستمرا وولاء جماهيريا، حيث يعتبر اللاعبون والفرق أبطالا يلهمون الأجيال الشابة، كما تعتبر المباريات مناسبات اجتماعية تحيي الروح الوطنية وتعزز التكافل الاجتماعي. في كل شارع وحي، تجتمع العائلات والأصدقاء لمشاهدة هذه المباريات التي لديها القدرة على خلق تجارب لا تنسى وترسيخ كرة القدم كلغة مشتركة في قلوب الناس.")
     
+    # nlp = spacy.load("ru_core_news_lg")
+    # doc = nlp("В России футбол продолжает удерживать титул самого популярного и любимого видa спорта. Миллионы российских болельщиков ежедневно следят за матчами как в национальных, так и в мировых лигах. Футбольные стадионы наполняются атмосферой страсти и восторга, когда команды сражаются за победу. Премьер-лига России привлекает внимание своей конкурентоспособностью и выдающимися моментами на поле. Сборная России также поддерживает фанатская страсть, особенно во время международных турниров. Футбол стал неотъемлемой частью культуры страны, объединяя людей разных возрастов и социальных групп в общей любви к этому великому спорту.")
+
+    # nlp = spacy.load("zh_core_web_lg")
+    # doc = nlp("在中国，篮球非常受欢迎，是最受小学生们喜爱的运动之一。许多小朋友都喜欢观看国内和国际的篮球比赛，看他们的英雄在球场上比赛。学校和社区也经常组织篮球活动，让小朋友们可以一起打篮球，学到更多的篮球技巧。有一些很厉害的篮球明星，像姚明和周琦，他们的故事也让小朋友们更喜欢篮球。所以，篮球已经成为中国小学生们生活中很重要的一部分，大家都热爱这个有趣的运动！")
+
     nlp = spacy.load("en_core_web_sm")
     doc = nlp("Climate change is a big problem. The Earth is getting warmer. This is bad for people, animals, and nature. Too much pollution is causing this. We must do something. Use less energy, plant more trees. Governments should help. Everyone can make a difference. Let's work together to stop climate change and save our planet.")
 
