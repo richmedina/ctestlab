@@ -1,3 +1,4 @@
+import json
 import spacy
 from spacy.tokens import Token
 from spacy.lang.ar import Arabic
@@ -5,22 +6,23 @@ from spacy.lang.ar import Arabic
 
 Token.set_extension("gap", default="")
 
+EXCLUDED_TAGS = ['PROPN', 'NUM']
 
 def arb_gap(token):
     tlen = len(token.text)
-    if tlen < 2 or token.pos_ == 'PROPN':
+    if tlen < 2 or token.pos_ in EXCLUDED_TAGS:
         return 0  #skip this token
     return (tlen//2) + (tlen%2)
 
 def chn_gap(token):
     tlen = len(token.text)
-    if tlen < 2 or token.pos_ == 'PROPN':
+    if tlen < 2 or token.pos_ in EXCLUDED_TAGS:
         return 0  #skip this token
     return (tlen//2) + (tlen%2)
 
 def eng_gap(token):
     tlen = len(token.text)
-    if  tlen < 2 or token.pos_ == 'PROPN':
+    if  tlen < 2 or token.pos_ in EXCLUDED_TAGS:
         return 0  #skip this token
     return (tlen//2) + (tlen%2)
 
@@ -28,7 +30,7 @@ def kor_gap(token):
     """ gaping is based on finding suffixes in each word then determining the 
         breakpoint based on ignoring the suffix portion."""
     tlen = len(token.text)
-    if tlen < 2 or token.pos_ == 'PROPN':
+    if tlen < 2 or token.pos_ in EXCLUDED_TAGS:
         return 0  #skip this token
     # Get lexical info
     t = token.tag_
@@ -46,7 +48,7 @@ def kor_gap(token):
 
 def por_gap(token):
     tlen = len(token.text)
-    if tlen < 3 or token.pos_ == 'PROPN':
+    if tlen < 3 or token.pos_ in EXCLUDED_TAGS:
         return 0
     return (tlen//2) + (tlen%2)
 
@@ -55,7 +57,7 @@ def per_gap(token):
 
 def rus_gap(token):
     tlen = len(token.text)
-    if token.pos_ == 'PROPN':
+    if token.pos_ in EXCLUDED_TAGS:
         return 0  #skip this token
     return (tlen//2) + (tlen%2)
 
@@ -118,12 +120,19 @@ if __name__ == '__main__':
     # nlp = spacy.load("ru_core_news_lg")
     # doc = nlp("В России футбол продолжает удерживать титул самого популярного и любимого видa спорта. Миллионы российских болельщиков ежедневно следят за матчами как в национальных, так и в мировых лигах. Футбольные стадионы наполняются атмосферой страсти и восторга, когда команды сражаются за победу. Премьер-лига России привлекает внимание своей конкурентоспособностью и выдающимися моментами на поле. Сборная России также поддерживает фанатская страсть, особенно во время международных турниров. Футбол стал неотъемлемой частью культуры страны, объединяя людей разных возрастов и социальных групп в общей любви к этому великому спорту.")
 
-    # nlp = spacy.load("zh_core_web_lg")
-    # doc = nlp("在中国，篮球非常受欢迎，是最受小学生们喜爱的运动之一。许多小朋友都喜欢观看国内和国际的篮球比赛，看他们的英雄在球场上比赛。学校和社区也经常组织篮球活动，让小朋友们可以一起打篮球，学到更多的篮球技巧。有一些很厉害的篮球明星，像姚明和周琦，他们的故事也让小朋友们更喜欢篮球。所以，篮球已经成为中国小学生们生活中很重要的一部分，大家都热爱这个有趣的运动！")
+    with open ("samples/chn.json", "r") as f:
+        sample = json.loads(f.read())
+    nlp = spacy.load("zh_core_web_lg")
+    doc = nlp(sample[3]["target"])
 
-    nlp = spacy.load("en_core_web_sm")
-    doc = nlp("Climate change is a big problem. The Earth is getting warmer. This is bad for people, animals, and nature. Too much pollution is causing this. We must do something. Use less energy, plant more trees. Governments should help. Everyone can make a difference. Let's work together to stop climate change and save our planet.")
+    # nlp = spacy.load("en_core_web_sm")
+    # doc = nlp("Climate change is a big problem. The Earth is getting warmer. This is bad for people, animals, and nature. Too much pollution is causing this. We must do something. Use less energy, plant more trees. Governments should help. Everyone can make a difference. Let's work together to stop climate change and save our planet.")
 
-    base_test(doc, eng_gap)
+    base_test(doc, chn_gap)
     print('\n', doc, '\n\n')
-    print(doc_print_ctest(doc))
+    ctest = doc_print_ctest(doc)
+    print(ctest)
+    data = [{'ctest': ctest, 'trans': sample[3]["trans"]}]
+    with open('gapped.json', 'w') as f:
+        f.write(json.dumps(data, indent=2, ensure_ascii=False))
+    
