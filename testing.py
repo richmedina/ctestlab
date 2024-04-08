@@ -1,3 +1,5 @@
+# newgenerator.py: provide CEFR descriptors
+# generate sets of 20 passages for KOR, POR, CHN
 import json
 import spacy
 from spacy.tokens import Token
@@ -120,13 +122,16 @@ if __name__ == '__main__':
     # nlp = spacy.load("ru_core_news_lg")
     # doc = nlp("В России футбол продолжает удерживать титул самого популярного и любимого видa спорта. Миллионы российских болельщиков ежедневно следят за матчами как в национальных, так и в мировых лигах. Футбольные стадионы наполняются атмосферой страсти и восторга, когда команды сражаются за победу. Премьер-лига России привлекает внимание своей конкурентоспособностью и выдающимися моментами на поле. Сборная России также поддерживает фанатская страсть, особенно во время международных турниров. Футбол стал неотъемлемой частью культуры страны, объединяя людей разных возрастов и социальных групп в общей любви к этому великому спорту.")
 
-    with open ("samples/chn.json", "r") as f:
-        sample = json.loads(f.read())
-    nlp = spacy.load("zh_core_web_lg")
-    doc = nlp(sample[3]["target"])
+    # with open ("samples/chn.json", "r") as f:
+    #     sample = json.loads(f.read())
+    # nlp = spacy.load("zh_core_web_lg")
+    # doc = nlp(sample[3]["target"])
 
-    # nlp = spacy.load("en_core_web_sm")
-    # doc = nlp("Climate change is a big problem. The Earth is getting warmer. This is bad for people, animals, and nature. Too much pollution is causing this. We must do something. Use less energy, plant more trees. Governments should help. Everyone can make a difference. Let's work together to stop climate change and save our planet.")
+    with open("samples/eng.json", "r") as f:
+        sample = json.loads(f.read())
+    nlp = spacy.load("en_core_web_sm")
+    
+    doc = nlp(sample[2])
 
     base_test(doc, chn_gap)
     print('\n', doc, '\n\n')
